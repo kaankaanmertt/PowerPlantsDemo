@@ -17,23 +17,17 @@ namespace PowerPlant.JobAPI.Controllers
     [ApiController]
     public class WebIdDataController : ControllerBase
     {
-        private readonly IWebIdDataService _powerPlantResPonseService;
+        private readonly IWebIdDataService _webIdDataService;
         private readonly IWebDefinitionService _webDefinitionService;
 
-        public WebIdDataController(IWebIdDataService powerPlantResponseService, IWebDefinitionService webDefinitionService)
+        public WebIdDataController(IWebIdDataService webIdDataService, IWebDefinitionService webDefinitionService)
         {
-            _powerPlantResPonseService = powerPlantResponseService;
+            _webIdDataService = webIdDataService;
             _webDefinitionService = webDefinitionService;
-
-            string defaultWebId = "neY8nWyrKrBQt7qcdQXXzsncKKe8HynuNejR2m7pSUyNEemUbB";
-            DateTime startTime = DateTime.Now.AddHours(-1);
-            DateTime endTime = DateTime.Now;
-
-            RecurringJob.AddOrUpdate(() => GetAllByhParemeters(defaultWebId,startTime, endTime), Cron.Hourly);
         }
 
         [HttpGet("get-all-by-parameters/{webId}")]
-        public IEnumerable<WebDefinitionEntity> GetAllByhParemeters(string webId, [FromQuery] DateTime startTime, [FromQuery] DateTime endTime)
+        public IEnumerable<WebDefinitionEntity> GetAllByParemeters(string webId, [FromQuery] DateTime startTime, [FromQuery] DateTime endTime)
         {
             return _webDefinitionService.GetAllByParameters(webId, startTime, endTime);
         }
@@ -41,7 +35,7 @@ namespace PowerPlant.JobAPI.Controllers
         [HttpPost("save")]
         public void SaveChanges(WebIdDataDto dto)
         {
-            _powerPlantResPonseService.SaveChanges(dto);
+            _webIdDataService.SaveChanges(dto);
         }
 
 

@@ -14,6 +14,7 @@ using PowerPlant.Core.Service;
 using PowerPlant.RelationalRepository;
 using PowerPlant.RelationalRepository.Mapping;
 using PowerPlant.RelationalRepository.Repository;
+using PowerPlant.WebIdDataAPI.HangFireService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,18 @@ namespace PowerPlant.JobAPI
 
             #endregion
 
+            
+            services.AddScoped<IWebDefinitionRepository, WebDefinitionRepository>();
+            services.AddScoped<IWebIdDataRepository, WebIdDataRepository>();
+
+            services.AddScoped<IWebDefinitionService, WebDefinitionService>();
+            services.AddScoped<IWebIdDataService, WebIdDataService>();
+
+
+            services.AddScoped<JobService>();
+
+
+
             #region Hangfire
             // Add Hangfire services.
             services.AddHangfire(configuration => configuration
@@ -65,16 +78,12 @@ namespace PowerPlant.JobAPI
             // Add the processing server as IHostedService
             services.AddHangfireServer();
 
+
             #endregion
 
             services.AddControllers();
 
-            services.AddScoped<IWebDefinitionService, WebDefinitionService>();
-            services.AddScoped<IWebDefinitionRepository, WebDefinitionRepository>();
-
-            services.AddScoped<IWebIdDataService, WebIdDataService>();
-            services.AddScoped<IWebIdDataRepository, WebIdDataRepository>();
-
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,6 +99,10 @@ namespace PowerPlant.JobAPI
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseHangfireDashboard();
+            RecurringJob.AddOrUpdate<JobService>("FetchDataFromWebDefinition", x => x.FetchDataFromWebDefinition(), Cron.Hourly);
+
 
             app.UseEndpoints(endpoints =>
             {
