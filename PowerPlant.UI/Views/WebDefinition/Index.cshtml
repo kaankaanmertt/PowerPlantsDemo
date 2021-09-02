@@ -1,0 +1,83 @@
+﻿@model WebDefinitionListModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@section Scripts
+{
+    <script>
+
+        $('[data-btn="btnDelete"]').on('click', function (d) {
+            d.preventDefault();
+            debugger;
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'DELETE',
+                success: function (rslt) {
+                    location.reload(true);
+                },
+                error: function (a, s, d) {
+                    alert(a.responseText, "Error!");
+                }
+            });
+        });
+
+        $('[data-btn="btnEdit"]').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'POST',
+                success: function (rslt) {
+                    location.reload(true);
+                },
+                error: function (a, s, d) {
+                    alert(a.responseText, "Error!");
+                }
+            });
+        });
+
+    </script>
+}
+
+
+
+
+<div class="table-responsive mt-3">
+
+    <form action="WebDefinition/Create" method="post" id="my_form">
+        <label>WebId</label>
+        <input type="text" id="webId" name="WebId" />
+        <input type="submit" name="submit" value="Create" />
+        <div id="server-results"></div>
+    </form>
+
+    <table class="table table-striped- table-bordered table-hover table-checkable" id="response-table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">WebId</th>
+                <th scope="col">TimeStamp</th>
+                <th scope="col">Good</th>
+                <th scope="col">Value</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Entities.Any())
+            {
+                @foreach (var item in Model?.Entities.OrderByDescending(i => i.Timestamp))
+                {
+                    <tr data-id="@item.Id">
+                        <td>@item.WebId</td>
+                        <td>@item.Timestamp</td>
+                        <td>@item.Good</td>
+                        <td>@item.Value</td>
+                        <td>
+                            <a href="@Url.ActionLink("Edit","WebDefinition", new { id = item.Id})" class="btn btn-warning" data-btn="btnEdit" title="Edit">Edit</a>
+                            <a href="@Url.ActionLink("Delete","WebDefinition", new { id = item.Id})" class="btn btn-danger" data-btn="btnDelete" title="Delete">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

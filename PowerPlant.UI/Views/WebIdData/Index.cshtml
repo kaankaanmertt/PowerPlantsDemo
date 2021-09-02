@@ -1,0 +1,73 @@
+﻿@model WebIdDataListModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@section Scripts
+{
+    <script>
+        $(function () {
+            $("#startDate").datepicker();
+            $("#endDate").datepicker();
+        });
+
+
+        $('[data-btn="btnSave"]').on('click', function (s) {
+            s.preventDefault();
+            $.ajax({
+                url: $(this).attr('href'),
+                method: 'POST',
+                success: function (rslt) {
+                    location.reload(true);
+                },
+                error: function (a, s, d) {
+                    alert(a.responseText, "Error!");
+                }
+            });
+        });
+
+    </script>
+}
+
+<form action="WebIdData/GetData" method="post" id="my_form">
+    <label>WebId</label>
+    <input type="text" id="webId" name="WebId" />
+    <label>Start Date</label>
+    <input type="datetime" id="startDate" name="StartTime" />
+    <label>End Date</label>
+    <input type="datetime" id="endDate" name="EndTime" />
+    <input type="submit" name="submit" value="Submit Form" />
+    <div id="server-results"></div>
+</form>
+
+
+<div class="table-responsive mt-3">
+    @if (Model.Entities.Any(i => i.Good == true))
+    {
+        <a href="@Url.ActionLink("Save","WebIdData", new { id = Model.Entities.Where(i => i.Good == true).OrderByDescending(i =>i.Timestamp).First().Id })" class="btn btn-info" data-btn="btnSave" title="Save">Save</a>
+    }
+    <table class="table table-striped- table-bordered table-hover table-checkable" id="response-table">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">WebId</th>
+                <th scope="col">TimeStamp</th>
+                <th scope="col">Good</th>
+                <th scope="col">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Entities.Any())
+            {
+                @foreach (var item in Model.Entities.Where(i => i.Good == true).OrderByDescending(i => i.Timestamp))
+                {
+                    <tr data-id="@item.Id">
+                        <td>@item.WebId</td>
+                        <td>@item.Timestamp</td>
+                        <td>@item.Good</td>
+                        <td>@item.Value</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
